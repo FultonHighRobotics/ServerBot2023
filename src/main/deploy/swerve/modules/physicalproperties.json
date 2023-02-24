@@ -15,7 +15,7 @@
       "angle": 0.25
     },
     "encoderPulsePerRotation": {
-      "drive": 42,
-      "angle": 42
+      "drive": 1,
+      "angle": 1
     }
   }  
