@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 public class RobotContainer {
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   
-  CommandJoystick driverController = new CommandJoystick(1);
   XboxController driverXbox = new XboxController(0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -30,11 +29,12 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    AbsoluteDrive closedAbsoluteDrive = new AbsoluteDrive(drivebase, () -> (Math.abs(driverXbox.getLeftY()) > OperatorConstants.LEFT_Y_DEADBAND) ? driverXbox.getLeftY() : 0, () -> (Math.abs(driverXbox.getLeftX()) > OperatorConstants.LEFT_X_DEADBAND) ? driverXbox.getLeftX() : 0, () -> -driverXbox.getRightX(), () -> -driverXbox.getRightY(), false);
-    AbsoluteFieldDrive closedFieldAbsoluteDrive = new AbsoluteFieldDrive(drivebase, () -> (Math.abs(driverXbox.getLeftY()) > OperatorConstants.LEFT_Y_DEADBAND) ? driverXbox.getLeftY() : 0, () -> (Math.abs(driverXbox.getLeftX()) > OperatorConstants.LEFT_X_DEADBAND) ? driverXbox.getLeftX() : 0, () -> driverXbox.getRawAxis(2), false);
-    TeleopDrive closedFieldRel = new TeleopDrive(drivebase, () -> (Math.abs(driverController.getY()) > OperatorConstants.LEFT_Y_DEADBAND) ? driverController.getY() : 0, () -> (Math.abs(driverController.getX()) > OperatorConstants.LEFT_X_DEADBAND) ? driverController.getX() : 0, () -> -driverController.getRawAxis(3), () -> true, false);
+    AbsoluteDrive closedAbsoluteDrive = new AbsoluteDrive(drivebase, () -> (Math.abs(driverXbox.getLeftY()) > OperatorConstants.LEFT_Y_DEADBAND) ? driverXbox.getLeftY() : 0, () -> (Math.abs(driverXbox.getLeftX()) > OperatorConstants.LEFT_X_DEADBAND) ? driverXbox.getLeftX() : 0, () -> -driverXbox.getRightX(), () -> driverXbox.getRightY(), false);
+    AbsoluteFieldDrive closedFieldAbsoluteDrive = new AbsoluteFieldDrive(drivebase, () -> (Math.abs(driverXbox.getLeftY()) > OperatorConstants.LEFT_Y_DEADBAND) ? driverXbox.getLeftY() : 0, () -> (Math.abs(driverXbox.getLeftX()) > OperatorConstants.LEFT_X_DEADBAND) ? driverXbox.getLeftX() : 0, () -> driverXbox.getRightY(), false);
+    TeleopDrive closedFieldRel = new TeleopDrive(drivebase, () -> (Math.abs(driverXbox.getLeftY()) > OperatorConstants.LEFT_Y_DEADBAND) ? driverXbox.getLeftY() : 0, () -> (Math.abs(driverXbox.getLeftX()) > OperatorConstants.LEFT_X_DEADBAND) ? driverXbox.getLeftX() : 0, () -> driverXbox.getRightX(), () -> true, false);
 
-    drivebase.setDefaultCommand(!RobotBase.isSimulation() ? closedFieldRel : closedAbsoluteDrive);
+    //drivebase.setDefaultCommand(!RobotBase.isSimulation() ? closedFieldAbsoluteDrive : closedAbsoluteDrive);
+    drivebase.setDefaultCommand(closedFieldRel);
   }
 
   private void configureBindings() {
