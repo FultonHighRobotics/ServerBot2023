@@ -22,8 +22,8 @@ import swervelib.parser.SwerveParser;
 public class Robot extends TimedRobot {
   private static Robot instance;
   private Command m_autonomousCommand;
-
-  private RobotContainer m_robotContainer;
+  public RobotContainer m_robotContainer;
+  public Arm arm = new Arm();
 
   private Timer disabledTimer;
   
@@ -88,8 +88,21 @@ public class Robot extends TimedRobot {
   }
 
   /** This function is called periodically during operator control. */
+  boolean released;
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    arm.SetIntake(m_robotContainer.driverXbox.getLeftBumper(), m_robotContainer.driverXbox.getRightBumper());
+    arm.SetArm(m_robotContainer.driverXbox.getRawAxis(3), m_robotContainer.driverXbox.getRawAxis(2));;
+    
+    if (m_robotContainer.driverXbox.getBButton()){
+      if (released){
+        released = false;
+        arm.rollerEnabled = !released;
+      }
+    }
+    else
+      released = true;
+  }
 
   @Override
   public void testInit() {

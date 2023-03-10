@@ -16,13 +16,16 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 public class RobotContainer {
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   
-  XboxController driverXbox = new XboxController(0);
+  public XboxController driverXbox = new XboxController(0);
+
+  
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -32,6 +35,17 @@ public class RobotContainer {
     AbsoluteDrive closedAbsoluteDrive = new AbsoluteDrive(drivebase, () -> (Math.abs(driverXbox.getLeftY()) > OperatorConstants.LEFT_Y_DEADBAND) ? driverXbox.getLeftY() : 0, () -> (Math.abs(driverXbox.getLeftX()) > OperatorConstants.LEFT_X_DEADBAND) ? driverXbox.getLeftX() : 0, () -> -driverXbox.getRightX(), () -> driverXbox.getRightY(), false);
     AbsoluteFieldDrive closedFieldAbsoluteDrive = new AbsoluteFieldDrive(drivebase, () -> (Math.abs(driverXbox.getLeftY()) > OperatorConstants.LEFT_Y_DEADBAND) ? driverXbox.getLeftY() : 0, () -> (Math.abs(driverXbox.getLeftX()) > OperatorConstants.LEFT_X_DEADBAND) ? driverXbox.getLeftX() : 0, () -> driverXbox.getRightY(), false);
     TeleopDrive closedFieldRel = new TeleopDrive(drivebase, () -> (Math.abs(driverXbox.getLeftY()) > OperatorConstants.LEFT_Y_DEADBAND) ? driverXbox.getLeftY() : 0, () -> (Math.abs(driverXbox.getLeftX()) > OperatorConstants.LEFT_X_DEADBAND) ? driverXbox.getLeftX() : 0, () -> -driverXbox.getRightX(), () -> true, false);
+
+    /*
+    arm.setDefaultCommand(new RunCommand(()-> {
+      arm.SetArm(driverXbox.getLeftTriggerAxis(), driverXbox.getRightTriggerAxis());
+    }, arm));
+
+    arm.setDefaultCommand(new RunCommand(()-> {
+      arm.SetIntake(driverXbox.getLeftBumper(), driverXbox.getRightBumper());
+    }, arm));
+    */
+    
 
     //drivebase.setDefaultCommand(!RobotBase.isSimulation() ? closedFieldAbsoluteDrive : closedAbsoluteDrive);
     drivebase.setDefaultCommand(closedFieldRel);
