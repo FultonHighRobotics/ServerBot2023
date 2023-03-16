@@ -65,12 +65,14 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    
     m_robotContainer.setMotorBrake(true);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if(m_autonomousCommand != null){
       m_autonomousCommand.schedule();
     }
+    
   }
 
   /** This function is called periodically during autonomous. */
@@ -92,12 +94,12 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     arm.SetIntake(m_robotContainer.driverXbox.getLeftBumper(), m_robotContainer.driverXbox.getRightBumper());
-    arm.SetArm(m_robotContainer.driverXbox.getRawAxis(3), m_robotContainer.driverXbox.getRawAxis(2));;
+    arm.SetArm(m_robotContainer.driverXbox.getRawAxis(2), m_robotContainer.driverXbox.getRawAxis(3));;
     
-    if (m_robotContainer.driverXbox.getBButton()){
+    if (m_robotContainer.driverXbox.getRawButton(1)){
       if (released){
         released = false;
-        arm.rollerEnabled = !released;
+        arm.rollerEnabled = !arm.rollerEnabled;
       }
     }
     else
