@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.ArmSubsystem;
 import swervelib.parser.SwerveParser;
 
 /**
@@ -23,7 +24,7 @@ public class Robot extends TimedRobot {
   private static Robot instance;
   private Command m_autonomousCommand;
   public RobotContainer m_robotContainer;
-  public Arm arm = new Arm();
+  public ArmSubsystem armSubsystem = new ArmSubsystem();
 
   private Timer disabledTimer;
   
@@ -93,13 +94,11 @@ public class Robot extends TimedRobot {
   boolean released;
   @Override
   public void teleopPeriodic() {
-    arm.SetIntake(m_robotContainer.driverXbox.getLeftBumper(), m_robotContainer.driverXbox.getRightBumper());
-    arm.SetArm(m_robotContainer.driverXbox.getRawAxis(2), m_robotContainer.driverXbox.getRawAxis(3));;
-    
+    armSubsystem.SetIntake(m_robotContainer.driverXbox.getLeftBumper(), m_robotContainer.driverXbox.getRightBumper());
     if (m_robotContainer.driverXbox.getRawButton(1)){
       if (released){
         released = false;
-        arm.rollerEnabled = !arm.rollerEnabled;
+        armSubsystem.rollerEnabled = !armSubsystem.rollerEnabled;
       }
     }
     else
