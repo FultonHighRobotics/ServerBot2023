@@ -1,0 +1,9 @@
+{
+  "lengthUnit": "Meter",
+  "exportUnit": "Always Meters",
+  "maxVelocity": 4.0,
+  "maxAcceleration": 2.0,
+  "trackWidth": 0.42,
+  "gameName": "Charged Up",
+  "outputDir": "../../../Desktop/SwerveBot2023-master/src/main/deploy/pathplanner/generatedJSON"
+}

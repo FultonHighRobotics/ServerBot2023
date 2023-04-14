@@ -3,6 +3,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -24,9 +26,44 @@ public class Arm extends SubsystemBase {
   static final double intakeHoldPower = 0.04;
   static final double ARM_HOLD_POWER = 0.05;
 
-  double armBackEncPos = 5.4;
-  double armForwardEncPos = -36.4;
+  double armBackEncPos = 380;
+  double armForwardEncPos = -860;
   double armInclineEncPos = -12;
+
+
+  public enum ArmPosition{
+    extended,
+    middle,
+    retracted
+  }
+
+
+  public void MoveToPosition(ArmPosition pos){
+    if(pos == ArmPosition.retracted){
+      while(armEncoder.getPosition() < armBackEncPos){
+        setArmMotor(0.4);
+      } 
+    }
+    if(pos == ArmPosition.extended){
+      while(armEncoder.getPosition() > armForwardEncPos){
+        setArmMotor(-0.4);
+      }
+    }
+    setArmMotor(0);
+  }
+
+  public int time = 0;
+  public boolean the = true;
+  public void MoveIntake(int d){
+    if (time <= 0 && the){
+      setIntakeMotor(d * intakeOutputPower, intakeLimitAmps);
+      time = 3;
+      the = false;
+    }
+    else
+      time--;
+    SmartDashboard.putNumber("69", time);
+  }
 
   public Arm(){
     intake = new CANSparkMax(14, MotorType.kBrushless);
@@ -67,18 +104,24 @@ public class Arm extends SubsystemBase {
     down
   }
 
+
+  public void setArm(int pos){
+    arm.set(0.4);
+    
+  }
+
   public void setArmMotor(double percent) {
     arm.set(percent);
-    SmartDashboard.putNumber("arm power (%)", percent);
-    SmartDashboard.putNumber("arm motor current (amps)", arm.getOutputCurrent());
+    //SmartDashboard.putNumber("arm power (%)", percent);
+    //SmartDashboard.putNumber("arm motor current (amps)", arm.getOutputCurrent());
   }
 
   public void setIntakeMotor(double percent, int amps) {
     intake.set(percent);
     intake.setSmartCurrentLimit(amps);
-    SmartDashboard.putNumber("intake power (%)", percent);
-    SmartDashboard.putNumber("intake motor current (amps)", intake.getOutputCurrent());
-    SmartDashboard.putNumber("Arm Encoder", armEncoder.getPosition() - armForwardEncPos);
+    //SmartDashboard.putNumber("intake power (%)", percent);
+    //SmartDashboard.putNumber("intake motor current (amps)", intake.getOutputCurrent());
+    SmartDashboard.putNumber("Arm Encoder", armEncoder.getPosition());
   }
 
   public void SetIntake(Boolean inButton, Boolean outButton){
@@ -112,7 +155,7 @@ public class Arm extends SubsystemBase {
     double power = 0;
 
     if (a > 0.05){
-        if (/*enc > armBackEncPos - 2*/ false)
+        if (enc > armBackEncPos - 2)
             power = 0.3;
         else
             power = 0.6;
@@ -121,7 +164,7 @@ public class Arm extends SubsystemBase {
         dir = direction.down;
     } 
     else if (b > 0.05){
-        if (/*enc < armForwardEncPos + 5*/ false)
+        if (enc < armForwardEncPos + 5)
             power = 0.4;
         else
             power = 0.8;
@@ -132,8 +175,8 @@ public class Arm extends SubsystemBase {
     else{
         if (dir == direction.up)
             armPower = -ARM_HOLD_POWER;
-        //else if (enc < armInclineEncPos)
-          //  armPower = -ARM_HOLD_POWER * 0.5;
+        else if (enc < armInclineEncPos)
+            armPower = -ARM_HOLD_POWER * 0.5;
         else
             armPower = ARM_HOLD_POWER;
 

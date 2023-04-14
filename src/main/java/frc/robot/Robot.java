@@ -1,30 +1,24 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import java.io.File;
 import java.io.IOException;
+
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.Arm.ArmPosition;
 import swervelib.parser.SwerveParser;
 
-/**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
- * project.
- */
+
 public class Robot extends TimedRobot {
   private static Robot instance;
   private Command m_autonomousCommand;
   public RobotContainer m_robotContainer;
-  public ArmSubsystem armSubsystem = new ArmSubsystem();
+  public Arm arm = new Arm();
 
   private Timer disabledTimer;
   
@@ -41,12 +35,14 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     m_robotContainer = new RobotContainer();
     disabledTimer = new Timer();
+    CameraServer.startAutomaticCapture();
+
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-  }
+ }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
@@ -66,9 +62,15 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    
+    String chosen = m_robotContainer.autoCooser.getSelected();
     m_robotContainer.setMotorBrake(true);
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    arm.MoveToPosition(ArmPosition.extended);
+    arm.MoveIntake(1);
+    arm.MoveToPosition(ArmPosition.retracted);
+    if (chosen == "n") return;
+
+    if (chosen == "f")
+      m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if(m_autonomousCommand != null){
       m_autonomousCommand.schedule();
@@ -78,7 +80,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    arm.MoveIntake(0);
+  }
 
   @Override
   public void teleopInit() {
@@ -91,18 +95,45 @@ public class Robot extends TimedRobot {
   }
 
   /** This function is called periodically during operator control. */
-  boolean released;
+  boolean upR;
+  boolean downR;
   @Override
   public void teleopPeriodic() {
-    armSubsystem.SetIntake(m_robotContainer.driverXbox.getLeftBumper(), m_robotContainer.driverXbox.getRightBumper());
-    if (m_robotContainer.driverXbox.getRawButton(1)){
-      if (released){
-        released = false;
-        armSubsystem.rollerEnabled = !armSubsystem.rollerEnabled;
+    arm.SetIntake(m_robotContainer.driverXbox.getLeftBumper(), m_robotContainer.driverXbox.getRightBumper());
+    arm.SetArm(m_robotContainer.driverXbox.getRawAxis(2), m_robotContainer.driverXbox.getRawAxis(3));
+
+    if (m_robotContainer.driverXbox.getYButtonPressed()){
+      if (m_robotContainer.power == 1)
+        m_robotContainer.power = 0.5;
+      else
+        m_robotContainer.power = 1;
+    }
+
+    SmartDashboard.putNumber("power", m_robotContainer.power);
+    if (m_robotContainer.driverXbox.getPOV() == 0){
+      if (upR){
+        if(m_robotContainer.power < 1.2)
+          m_robotContainer.power += 0.05;
+        upR = false;
       }
     }
     else
-      released = true;
+      upR = true;
+
+    SmartDashboard.putNumber("pov",m_robotContainer.driverXbox.getPOV());
+    if (m_robotContainer.driverXbox.getPOV() == 180){
+      if (downR){
+        if (m_robotContainer.power > 0.35)
+          m_robotContainer.power -= 0.05;
+        downR = false;
+      }
+    }
+    else
+      downR = true;
+
+    if (m_robotContainer.driverXbox.getBButtonPressed()){
+        arm.rollerEnabled = !arm.rollerEnabled;
+    }
   }
 
   @Override
